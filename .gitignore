@@ -14,11 +14,20 @@ dist/
 build/
 .env
 .venv/
+venv/
 
-# Jupyter output files (keep figures intentionally committed)
+# Generated analysis outputs (reproducible via run_all.py)
+outputs/figures/
+outputs/metrics/
+outputs/predictions/
+
+# Trained artifacts (regenerate with python -m src.train_hy_model)
+models/*.joblib
+
+# Jupyter
 *.pyc
 
-# Temporary files
+# Temporary
 *.tmp
 *.log
 captcha.txt
