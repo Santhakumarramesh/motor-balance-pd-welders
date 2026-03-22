@@ -13,7 +13,6 @@ ROOT = Path(__file__).resolve().parent
 def main() -> None:
     subprocess.check_call([sys.executable, "-m", "src.train_hy_model"], cwd=ROOT)
     subprocess.check_call([sys.executable, "-m", "src.project_welders"], cwd=ROOT)
-    print("Done: models/, outputs/figures, outputs/metrics, outputs/predictions/")
 
 
 if __name__ == "__main__":

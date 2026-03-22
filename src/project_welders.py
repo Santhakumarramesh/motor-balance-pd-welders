@@ -1,9 +1,4 @@
-"""
-Apply saved PD H&Y pipelines to welders; save predictions + figures + exposure table.
-
-Run from repository root:
-  python -m src.project_welders
-"""
+"""Welder projection: apply fitted PD H&Y pipelines; export tables and figures."""
 
 from __future__ import annotations
 
@@ -40,7 +35,6 @@ from src.utils import (
 
 
 def compare_groups_figure(pd_df: pd.DataFrame, wd_df: pd.DataFrame, out_path: Path):
-    """PD vs welders boxplots for BBS, Mini, FES."""
     rows = []
     for _, r in pd_df.iterrows():
         rows.append(
@@ -204,7 +198,6 @@ def run_projection(
     plt.savefig(out_fig / "fig_07_welder_projection.png", dpi=150, bbox_inches="tight")
     plt.close()
 
-    # Spearman associations
     exposure_vars = [
         ("WeldYrs", "Total years in welding"),
         ("HrsPerDay", "Hours per day"),
@@ -237,8 +230,7 @@ def run_projection(
 
     out_xlsx = out_pred / "welder_predictions.xlsx"
     wd_clean.to_excel(out_xlsx, index=False)
-    print(f"Saved: {out_xlsx}")
-    print(f"Figures: {out_fig}")
+    print(f"Phase 2 | {out_xlsx} | figures -> {out_fig}")
 
 
 def main():

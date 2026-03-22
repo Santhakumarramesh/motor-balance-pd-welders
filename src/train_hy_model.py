@@ -1,11 +1,4 @@
-"""
-Train PD-only H&Y reference models (binary + multiclass) with LOOCV,
-feature-set ablation, and save sklearn Pipelines + metrics + figures.
-
-Run from repository root:
-  python -m src.train_hy_model
-  python -m src.train_hy_model --data data/PD_WELDERS\\ RAW\\ Long\\ Data-2.xlsx
-"""
+"""PD H&Y reference training: LOOCV, feature ablation, persist fitted Pipelines."""
 
 from __future__ import annotations
 
@@ -36,7 +29,6 @@ from sklearn.model_selection import LeaveOneOut
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-# Repo root on path
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
@@ -72,7 +64,6 @@ def bootstrap_ci(y_true, y_pred, metric_fn, n_boot: int = 1000, seed: int = RAND
 
 
 def loocv_predict(pipeline_template: Pipeline, X: np.ndarray, y: np.ndarray):
-    """LOOCV; fit a fresh clone of the pipeline each fold."""
     loo = LeaveOneOut()
     yt, yp = [], []
     for tr, te in loo.split(X):
@@ -152,7 +143,6 @@ FEATURE_SETS = {
 
 
 def select_best_model(metric_rows: list[dict]) -> dict:
-    """Pick highest macro F1; tie-break with balanced accuracy."""
     return max(
         metric_rows,
         key=lambda r: (r["f1_macro"], r["balanced_accuracy"], r["accuracy"]),
@@ -169,7 +159,6 @@ def run_phase1(
     for w in validate_ranges(pd_df, "PD"):
         print("Warning:", w)
 
-    # ── Figure: balance by H&Y ───────────────────────────────────────────
     out_fig.mkdir(parents=True, exist_ok=True)
     palette = {1: "#3498db", 2: "#2ecc71", 3: "#f39c12", 4: "#e74c3c"}
     fig, axes = plt.subplots(1, 3, figsize=(13, 4.5))
@@ -227,7 +216,6 @@ def run_phase1(
         "feature_sets": list(FEATURE_SETS.keys()),
     }
 
-    # ── Binary LOOCV (all feature sets × models) ─────────────────────────
     df_bin = pd_df.dropna(subset=list(FEATURES) + ["HY_bin"]).reset_index(drop=True)
     y_bin = df_bin["HY_bin"].values.astype(int)
     n_cls = np.bincount(y_bin)
@@ -243,7 +231,6 @@ def run_phase1(
             rows.append(row)
         results["binary"][fs_name] = {"models": rows, "baseline": baseline_bin}
 
-    # ── Multiclass LOOCV ──────────────────────────────────────────────────
     df_mc = pd_df.dropna(subset=list(FEATURES) + ["HY"]).reset_index(drop=True)
     y_mc = df_mc["HY"].values.astype(int)
     stages = sorted(np.unique(y_mc))
@@ -261,7 +248,6 @@ def run_phase1(
             rows.append(row)
         results["multiclass"][fs_name] = {"models": rows, "baseline": baseline_mc}
 
-    # Best models on **Combined** features (production path)
     bin_combined = results["binary"]["Combined"]["models"]
     best_bin_row = select_best_model(bin_combined)
     best_bin_name = best_bin_row["name"]
@@ -270,7 +256,6 @@ def run_phase1(
     best_mc_row = select_best_model(mc_combined)
     best_mc_name = best_mc_row["name"]
 
-    # Refit LOOCV predictions for best Combined models (confusion matrices)
     X_bin_full = df_bin[list(FEATURES)].values.astype(float)
     pipe_bin = make_pipeline(best_bin_name)
     yt_b, yp_b = loocv_predict(pipe_bin, X_bin_full, y_bin)
@@ -279,7 +264,6 @@ def run_phase1(
     pipe_mc = make_pipeline(best_mc_name)
     yt_m, yp_m = loocv_predict(pipe_mc, X_mc_full, y_mc)
 
-    # Confusion matrices
     fig, ax = plt.subplots(figsize=(5, 4))
     cm = confusion_matrix(yt_b, yp_b)
     ConfusionMatrixDisplay(cm, display_labels=["Early (I-II)", "Late (III-IV)"]).plot(
@@ -298,7 +282,6 @@ def run_phase1(
     plt.savefig(out_fig / "fig_03_confusion_multiclass.png", dpi=150, bbox_inches="tight")
     plt.close()
 
-    # CV summary figure: 4 panels, best model per feature set (binary)
     fig, axes = plt.subplots(2, 2, figsize=(10, 8))
     axes = axes.ravel()
     metrics_names = ["accuracy", "balanced_accuracy", "f1_macro"]
@@ -319,7 +302,6 @@ def run_phase1(
     plt.savefig(out_fig / "fig_04_cv_summary_binary.png", dpi=150, bbox_inches="tight")
     plt.close()
 
-    # Feature importance (Random Forest on full PD, Combined) — tree-based only
     rf = make_pipeline("Random Forest")
     rf.fit(X_bin_full, y_bin)
     imp = rf.named_steps["clf"].feature_importances_
@@ -331,7 +313,6 @@ def run_phase1(
     plt.savefig(out_fig / "fig_05_rf_importance_binary.png", dpi=150, bbox_inches="tight")
     plt.close()
 
-    # Full-data fit & save Pipelines
     models_dir.mkdir(parents=True, exist_ok=True)
     final_bin = clone(make_pipeline(best_bin_name))
     final_bin.fit(X_bin_full, y_bin)
@@ -382,7 +363,6 @@ def run_phase1(
         models_dir / "hy_multiclass_pipeline.joblib",
     )
 
-    # Extended metrics file
     summary = {
         "schema": schema,
         "binary_best_combined": best_bin_row,
@@ -397,21 +377,15 @@ def run_phase1(
     }
     write_json(out_metrics / "phase1_metrics.json", summary)
 
-    print("=" * 65)
-    print("PHASE 1 — PD H&Y REFERENCE MODEL")
-    print("=" * 65)
-    print(f"  Binary best (Combined): {best_bin_name}")
     print(
-        f"    LOOCV accuracy {best_bin_row['accuracy']:.3f}  "
-        f"F1-macro {best_bin_row['f1_macro']:.3f}"
+        f"Phase 1 | binary: {best_bin_name} | LOOCV acc {best_bin_row['accuracy']:.3f} | "
+        f"F1_macro {best_bin_row['f1_macro']:.3f}"
     )
-    print(f"  Multiclass best (Combined): {best_mc_name}")
     print(
-        f"    LOOCV accuracy {best_mc_row['accuracy']:.3f}  "
+        f"Phase 1 | multiclass: {best_mc_name} | LOOCV acc {best_mc_row['accuracy']:.3f} | "
         f"within-1-stage {best_mc_row['within_one_stage_acc']:.3f}"
     )
-    print(f"  Artifacts: {models_dir}/hy_*_pipeline.joblib")
-    print(f"  Metrics:   {out_metrics}/phase1_metrics.json")
+    print(f"Saved: {models_dir}/hy_*_pipeline.joblib | {out_metrics}/phase1_metrics.json")
 
 
 def main():

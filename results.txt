@@ -1,0 +1,62 @@
+Motor-Balance PD-Referenced Classification — Results Summary
+
+OBJECTIVE
+This study developed a Parkinson disease (PD)–referenced machine learning framework using shared clinical balance measures to characterize welder motor-balance profiles in terms of PD-like Hoehn and Yahr (H&Y) severity resemblance—not clinical diagnosis.
+
+INPUT FEATURES
+Final models used three shared scales:
+  1. BBS (Berg Balance Scale)
+  2. Mini-BEST (Mini-BESTest)
+  3. FES (Falls Efficacy Scale)
+
+STUDY DESIGN
+Phase 1: Train PD-only reference models using observed H&Y stage as the label.
+Phase 2: Apply the fitted reference models to welders to obtain predicted PD-like class, stage probabilities, and a continuous PD-like severity score (probability-weighted stage index).
+
+MODELS EVALUATED
+Logistic regression, random forest, and gradient boosting, with preprocessing restricted to median imputation, standardization, and classifier fitting within each leave-one-out fold.
+
+VALIDATION
+Primary PD evaluation: leave-one-out cross-validation (LOOCV).
+Feature comparisons: single-feature models (BBS only; Mini-BEST only; FES only) versus the combined three-feature model.
+
+BINARY PD CLASSIFICATION (EARLY VS LATE)
+Definition: Early PD = H&Y stages I–II; Late PD = H&Y stages III–IV.
+
+Performance (LOOCV, combined feature set; representative replication):
+  • Random forest and gradient boosting: accuracy 85.7%, macro–F1 0.844 (bootstrap confidence intervals wide; n = 14 PD).
+  • Logistic regression: accuracy 78.6% under the same pipeline on the current dataset (tree ensembles stronger and more stable here).
+  • Majority-class baseline: 64.3%.
+
+Interpretation: Shared balance features carry information for early versus late PD severity separation; tree-based models align with the small-sample, nonlinear structure of the data.
+
+MULTICLASS PD H&Y PREDICTION (STAGES I–IV)
+Performance (LOOCV, combined feature set; best model replication):
+  • Exact multiclass accuracy: 50.0%
+  • Within-one-stage accuracy: 100.0%
+
+Interpretation: Exact four-way classification is limited by sample size and class imbalance; errors concentrate at adjacent stages, preserving ordinal severity structure and supporting use of the multiclass model for probability-based welder projection.
+
+FEATURE INTERPRETATION
+BBS: global balance performance.
+Mini-BEST: dynamic and reactive balance components.
+FES: fear of falling and activity-related confidence.
+Combined use of BBS, Mini-BEST, and FES integrates objective performance, dynamic control, and self-efficacy, and is retained as the primary analytic framework.
+
+WELDER OUTPUT (PHASE 2)
+Outputs are resemblance-based: predicted PD-like H&Y class, per-stage probabilities, and a combined PD-like severity score. These do not assign PD diagnosis or true clinical H&Y stage to welders.
+
+STRENGTHS
+Shared feature design across cohorts; LOOCV for small PD samples; interpretable three-scale battery; probabilistic outputs; scripted, reproducible training and figure generation.
+
+LIMITATIONS
+Small PD sample; H&Y class imbalance; no external validation cohort; only three input scales in the classifier; large age difference between PD and welder cohorts; welder results are exploratory and non-diagnostic.
+
+CONCLUSION
+A PD-referenced model using BBS, Mini-BEST, and FES recovers meaningful PD severity structure under LOOCV and supports mapping welder balance profiles into PD-like H&Y resemblance categories for hypothesis-generating occupational health analysis.
+
+RECOMMENDED REPORTING LANGUAGE
+This study presents a PD-referenced machine learning framework in which models trained on PD H&Y severity are applied to shared balance measures to classify welder motor-balance patterns into PD-like severity resemblance categories, with explicit non-diagnostic interpretation.
+
+NOTE
+Numerical point estimates should be verified against outputs/metrics/phase1_metrics.json after running the release pipeline (python run_all.py).

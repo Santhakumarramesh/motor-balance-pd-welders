@@ -54,6 +54,7 @@ motor-balance-pd-welders/
 │   └── predictions/          # welder_predictions.xlsx
 ├── notebooks/                # Optional interactive workflow (Colab-friendly)
 ├── docs/paper_figure_plan.md
+├── results.txt
 ├── run_all.py
 ├── requirements.txt
 └── README.md

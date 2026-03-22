@@ -1,4 +1,4 @@
-"""Paths, Excel loading, column normalization, and parsing helpers."""
+"""Data I/O, column normalization, and H&Y parsing."""
 
 from __future__ import annotations
 
@@ -12,7 +12,6 @@ import pandas as pd
 
 RANDOM_SEED = 42
 
-# Core model features (canonical names used in DataFrames after loading)
 FEATURES = ("BBS", "Mini", "FES")
 
 ROMAN = {"i": 1, "ii": 2, "iii": 3, "iv": 4, "v": 5}
@@ -27,7 +26,6 @@ def default_data_path() -> Path:
 
 
 def parse_hy(val: Any) -> float:
-    """Parse H&Y stage from 'Stage I', 'Stage III', etc. → int 1–5."""
     if pd.isna(val):
         return np.nan
     s = str(val).lower().replace("stage", "").strip()
@@ -48,7 +46,6 @@ def _norm_mini_col(columns: pd.Index) -> str | None:
 
 
 def load_pd_dataframe(xl_path: Path | str) -> pd.DataFrame:
-    """Load PD sheet; standardize balance column names to BBS, Mini, FES."""
     path = Path(xl_path)
     raw = pd.ExcelFile(path).parse("PD")
     mini_col = _norm_mini_col(raw.columns) or "MINI-BEST"
@@ -90,7 +87,6 @@ def parse_fall_wd(v: Any) -> float:
 
 
 def encode_exposure(v: Any) -> float:
-    """Occasional < Regular < Frequent → 0/1/2/3."""
     if pd.isna(v):
         return np.nan
     s = str(v).lower()
@@ -119,7 +115,6 @@ def encode_ppe(v: Any) -> float:
 
 
 def load_wd_dataframe(xl_path: Path | str) -> pd.DataFrame:
-    """Load WD (welders) sheet with standardized BBS, Mini, FES."""
     path = Path(xl_path)
     raw = pd.ExcelFile(path).parse("WD")
     mini_col = _norm_mini_col(raw.columns) or "MINI-BEST SCORE"
@@ -160,7 +155,6 @@ def load_wd_dataframe(xl_path: Path | str) -> pd.DataFrame:
 
 
 def w_stage(yrs: float) -> float:
-    """Exploratory W1–W5 staging from total welding years."""
     if pd.isna(yrs):
         return np.nan
     if yrs < 10:
@@ -175,7 +169,6 @@ def w_stage(yrs: float) -> float:
 
 
 def validate_ranges(df: pd.DataFrame, label: str = "") -> list[str]:
-    """Return warning strings for out-of-range balance values."""
     warnings = []
     for _, row in df.iterrows():
         if pd.notna(row.get("BBS")) and (row["BBS"] < 0 or row["BBS"] > 56):
