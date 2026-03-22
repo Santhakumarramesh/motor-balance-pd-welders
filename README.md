@@ -139,7 +139,7 @@ motor-balance-pd-welders/
 
 ## Development
 
-**CI:** On push/PR to `main` or `master`, GitHub Actions runs `python -m src.smoke_test` (see `.github/workflows/ci.yml`). Requires `data/PD_WELDERS RAW Long Data-2.xlsx` in the repo.
+**CI:** A workflow file is provided at `.github/workflows/ci.yml` (runs `python -m src.smoke_test` on push/PR). It must be pushed with a GitHub token that has the **`workflow` scope** (or add the file via the GitHub web UI). Requires `data/PD_WELDERS RAW Long Data-2.xlsx` in the repo for the job to pass.
 
 ```bash
 python -m src.train_hy_model --help
