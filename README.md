@@ -15,6 +15,17 @@
 
 **Secondary (optional):** Correlations between PD-like severity and welding exposure variables are **exploratory**. They are **off by default**; enable with `python run_all.py --exposure` or `python -m src.project_welders --exposure`. See `outputs/metrics/phase2_associations.json`. Do not treat them as the headline finding.
 
+### Headline PD metrics (LOOCV, Combined features, Random Forest)
+
+Use **one frozen pipeline run** for papers, resumes, and `results.txt`; **source of truth** is always `outputs/metrics/phase1_metrics.json` (re-running may change digits slightly).
+
+| Task | LOOCV accuracy | Other (same run) |
+|------|----------------|-------------------|
+| Binary (Early vs Late) | **0.857** | macro-F1 **0.844**, balanced accuracy **0.844** |
+| Multiclass (H&Y I–IV) | **0.500** (exact) | within-one-stage **1.000**, macro-F1 **0.271** |
+
+*`outputs/summary_report.md` and `results.txt` should match these headline values.*
+
 ---
 
 ## Quick start

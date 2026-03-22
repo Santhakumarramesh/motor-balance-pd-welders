@@ -1,9 +1,13 @@
 Motor-Balance PD-Referenced Classification — Results Summary
 
+REFERENCE SNAPSHOT (for papers / portfolio / README — verify against phase1_metrics.json)
+  Binary LOOCV (Combined, RF): accuracy 0.857; macro-F1 0.844; balanced accuracy 0.844
+  Multiclass LOOCV (Combined, RF): exact accuracy 0.500; within-one-stage 1.000; macro-F1 0.271
+  Re-run `python run_all.py` refreshes JSON/summary_report.md; update this block if you adopt a new reference run.
+
 PRIMARY DESIGN (MAIN CLAIM)
 Train PD-only H&Y reference models on shared balance scales (BBS, Mini-BEST, FES) using
-leave-one-out cross-validation (LOOCV). Save the best-performing pipelines (macro-F1 on
-the Combined feature set). Apply the multiclass pipeline to welders to obtain PD-like stage
+leave-one-out cross-validation (LOOCV). Save the best-performing pipelines (Combined feature set; selection order in docs/model_design.md). Apply the multiclass pipeline to welders to obtain PD-like stage
 probabilities and a continuous PD-like severity score. This is a resemblance framework, not
 a PD diagnosis and not a true clinical H&Y assignment in welders.
 
@@ -76,6 +80,6 @@ PD H&Y severity using BBS, Mini-BEST, and FES are applied to welders to characte
 PD-like motor-balance severity resemblance categories using multiclass probabilities and a
 severity score.
 
-LAST RUN (verify against outputs/metrics/phase1_metrics.json after each run)
+LAST RUN (duplicate check — should match REFERENCE SNAPSHOT and summary_report.md when unchanged)
   • Binary LOOCV (Combined, RF): accuracy ≈ 0.857; macro-F1 ≈ 0.844; balanced acc ≈ 0.844
   • Multiclass LOOCV (Combined, RF): exact accuracy ≈ 0.50; within-one-stage ≈ 1.00
