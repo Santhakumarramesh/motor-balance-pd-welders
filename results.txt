@@ -13,9 +13,9 @@ n=30 (14 vs 16). Metrics in outputs/metrics/group_discrimination.json; figure
 fig_08_group_discrimination.png. Confounded by age and cohort — descriptive / supporting only.
 
 SECONDARY ANALYSIS (EXPLORATORY)
-Associations between PD-like severity score and welding exposure variables (e.g. years,
-PPE) are optional, hypothesis-generating, and must not overshadow the primary PD-reference
-design. See outputs/metrics/phase2_associations.json.
+Associations between PD-like severity score and welding exposure variables are optional,
+hypothesis-generating, and off by default. Enable with: python run_all.py --exposure or
+python -m src.project_welders --exposure. See outputs/metrics/phase2_associations.json.
 
 INPUT FEATURES
   1. BBS (Berg Balance Scale)
@@ -50,9 +50,10 @@ optional binary Early/Late-like labels if binary pipeline is applied.
 
 ARTIFACTS
   • Metrics: outputs/metrics/phase1_metrics.json (source of truth for numbers above)
+  • Run summary: outputs/summary_report.md (after run_all.py)
   • Predictions: outputs/predictions/welder_predictions.xlsx
-  • Pipeline figures: outputs/figures/fig_01 … fig_07
-  • Paper-ordered figures + captions: outputs/figures/paper/paper_fig_*.png and .md
+  • Pipeline figures: outputs/figures/fig_01 … fig_09 (includes fig_08 benchmark, fig_09 confidence)
+  • Paper-ordered figures: outputs/figures/paper/paper_fig_*.png; captions: docs/captions/paper_fig_*.md
 
 STRENGTHS
 Shared PD–welder features; LOOCV for small PD samples; probabilistic outputs; scripted
@@ -74,3 +75,7 @@ This study presents a PD-referenced machine learning framework in which models t
 PD H&Y severity using BBS, Mini-BEST, and FES are applied to welders to characterize
 PD-like motor-balance severity resemblance categories using multiclass probabilities and a
 severity score.
+
+LAST RUN (verify against outputs/metrics/phase1_metrics.json after each run)
+  • Binary LOOCV (Combined, RF): accuracy ≈ 0.857; macro-F1 ≈ 0.844; balanced acc ≈ 0.844
+  • Multiclass LOOCV (Combined, RF): exact accuracy ≈ 0.50; within-one-stage ≈ 1.00

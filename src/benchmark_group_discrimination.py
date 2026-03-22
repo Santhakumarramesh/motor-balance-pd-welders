@@ -1,10 +1,4 @@
-"""
-Supporting analysis (not the main H&Y model): PD vs Welder group discrimination.
-
-Uses stratified 5-fold CV on the combined cohort (n=30) for each feature subset
-and classifier. Shows whether shared balance features separate groups; confounded
-by age and design — exploratory only.
-"""
+"""PD vs welder group discrimination (5-fold CV); exploratory, not the H&Y model."""
 
 from __future__ import annotations
 

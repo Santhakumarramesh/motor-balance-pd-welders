@@ -5,13 +5,15 @@
 
 **Repository:** [github.com/Santhakumarramesh/motor-balance-pd-welders](https://github.com/Santhakumarramesh/motor-balance-pd-welders)
 
+**Independent review framing (exploratory vs. clinical):** **`docs/reviewer_brief.md`**
+
 ---
 
 ## Primary research design
 
 **Main claim:** Train a **PD-only** H&Y reference model on **BBS, Mini-BEST, and FES** (leave-one-out CV), save the best pipelines, then **classify welder rows into PD-like motor-balance severity categories** using multiclass stage probabilities and a **PD-like severity score**. This is **resemblance in a PD-learned space**, not a diagnosis of PD in welders and not a true clinical H&Y stage in welders.
 
-**Secondary (optional):** Correlations between PD-like severity and welding exposure variables are **exploratory**; see `outputs/metrics/phase2_associations.json`. Do not treat them as the headline finding.
+**Secondary (optional):** Correlations between PD-like severity and welding exposure variables are **exploratory**. They are **off by default**; enable with `python run_all.py --exposure` or `python -m src.project_welders --exposure`. See `outputs/metrics/phase2_associations.json`. Do not treat them as the headline finding.
 
 ---
 
@@ -28,10 +30,13 @@ python run_all.py
 
 `run_all.py` runs:
 
-1. `python -m src.train_hy_model` — PD LOOCV, feature ablation, saves `models/hy_*_pipeline.joblib`, `outputs/metrics/phase1_metrics.json`, `outputs/figures/fig_01`–`fig_05`.
+1. `python -m src.train_hy_model` — PD LOOCV, feature ablation, saves `models/hy_*_pipeline.joblib`, `outputs/metrics/phase1_metrics.json`, `outputs/figures/fig_01`–`fig_05` and `fig_09_multiclass_confidence_loocv.png`.
 2. `python -m src.benchmark_group_discrimination` — **supporting** PD vs welder group benchmark (5-fold CV), `outputs/metrics/group_discrimination.json`, `fig_08_group_discrimination.png`.
 3. `python -m src.project_welders` — welder projection, `outputs/predictions/welder_predictions.xlsx`, `fig_06`–`fig_07`.
-4. `python -m src.generate_paper_figures` — paper-ordered figures + captions: `outputs/figures/paper/`.
+4. `python -m src.generate_paper_figures` — paper-ordered PNGs in `outputs/figures/paper/`; caption `.md` files in `docs/captions/`.
+5. `python -m src.write_summary_report` — writes `outputs/summary_report.md` (also runs automatically at the end of `run_all.py`).
+
+Use `python run_all.py --exposure` if you want Phase 2 exposure correlations and the third panel of `fig_07_welder_projection.png`.
 
 **Data:** `data/PD_WELDERS RAW Long Data-2.xlsx`  
 **Seed:** `42` (`src/utils.py`)
@@ -44,12 +49,14 @@ python run_all.py
 |---------|---------|
 | `python -m src.predict_excel INPUT.xlsx` | Inference on **any** Excel with BBS / Mini-BEST / FES columns (auto-detected); writes `outputs/predictions/inference_predictions.xlsx` by default |
 | `python -m src.benchmark_group_discrimination` | Supporting PD vs welder 5-fold CV benchmark |
-| `python -m src.generate_paper_figures --ensure-run` | Build paper figures + `.md` captions; if needed, runs full pipeline first |
+| `python -m src.generate_paper_figures --ensure-run` | Build paper PNGs + `docs/captions/*.md`; optional full pipeline |
+| `python -m src.write_summary_report` | Regenerate `outputs/summary_report.md` from metrics JSON |
+| `python -m src.smoke_test` | Quick checks: data load, train, inference |
 | `python -m src.validate_external_pd FILE.xlsx` | **External PD cohort:** frozen pipelines, metrics JSON (requires true H&Y) |
 
-Design reference: **`docs/model_design.md`**.  
+Design reference: **`docs/model_design.md`**. Model card: **`docs/model_card.md`**. Reviewer framing: **`docs/reviewer_brief.md`**.  
 External validation protocol and paper wording: **`docs/external_validation.md`**.  
-Narrative summary: **`results.txt`** (align numbers with `phase1_metrics.json`).
+Narrative summary: **`results.txt`**; one-page run overview: **`outputs/summary_report.md`** (align numbers with `phase1_metrics.json`).
 
 **When you have an independent PD Excel** (same column layout as the PD sheet, true H&Y):
 
@@ -70,18 +77,26 @@ motor-balance-pd-welders/
 ├── src/
 │   ├── utils.py
 │   ├── train_hy_model.py
+│   ├── benchmark_group_discrimination.py
 │   ├── project_welders.py
 │   ├── predict_excel.py
-│   └── generate_paper_figures.py
+│   ├── validate_external_pd.py
+│   ├── generate_paper_figures.py
+│   ├── write_summary_report.py
+│   └── smoke_test.py
 ├── models/                   # Generated *.joblib (gitignored)
 ├── outputs/
-│   ├── figures/              # Pipeline fig_01 … fig_07
-│   ├── figures/paper/        # paper_fig_*.png + .md captions
+│   ├── figures/              # Pipeline fig_01–fig_09 (incl. fig_08 benchmark)
+│   ├── figures/paper/        # paper_fig_*.png (captions: docs/captions/)
 │   ├── metrics/              # phase1_metrics.json, phase2_associations.json
-│   └── predictions/
+│   ├── predictions/
+│   └── summary_report.md     # Generated human-readable run summary
 ├── notebooks/
 ├── docs/
+│   ├── captions/             # paper_fig_*.md (figure captions)
 │   ├── model_design.md
+│   ├── model_card.md
+│   ├── reviewer_brief.md
 │   ├── external_validation.md
 │   └── paper_figure_plan.md
 ├── results.txt
@@ -96,7 +111,10 @@ motor-balance-pd-welders/
 
 - **Features:** `BBS`, `Mini`, `FES` — same for PD training and welder inference.
 - **Preprocessing:** `SimpleImputer(median)` → `StandardScaler` → classifier (inside each LOOCV fold).
-- **Selection:** Best **macro-F1** on the **Combined** feature set among logistic regression, random forest, gradient boosting; saved pipelines in `models/`.
+- **Production selection (Combined features only):** Among logistic regression, random forest, and gradient boosting, pick the best model using the **same ordering** as in **`docs/model_design.md`**:
+  - **Binary (Early vs Late):** maximize **macro-F1 → balanced accuracy → accuracy**.
+  - **Multiclass (H&Y I–IV):** maximize **macro-F1 → balanced accuracy → within-one-stage accuracy → accuracy**.
+- **Saved artifacts:** `models/hy_binary_pipeline.joblib`, `models/hy_multiclass_pipeline.joblib`.
 - **Welder output:** `Pred_Stage`, `P_Stage*`, `PD_Severity_Score` from the multiclass pipeline.
 
 ---
@@ -121,6 +139,8 @@ motor-balance-pd-welders/
 
 ## Development
 
+**CI:** On push/PR to `main` or `master`, GitHub Actions runs `python -m src.smoke_test` (see `.github/workflows/ci.yml`). Requires `data/PD_WELDERS RAW Long Data-2.xlsx` in the repo.
+
 ```bash
 python -m src.train_hy_model --help
 python -m src.benchmark_group_discrimination --help
@@ -128,6 +148,8 @@ python -m src.project_welders --help
 python -m src.predict_excel --help
 python -m src.generate_paper_figures --help
 python -m src.validate_external_pd --help
+python -m src.write_summary_report --help
+python -m src.smoke_test --help
 ```
 
 ---

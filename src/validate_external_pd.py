@@ -1,10 +1,4 @@
-"""
-External validation: apply frozen PD pipelines (no retraining) to a separate PD cohort
-with true H&Y labels. Welders are not valid external-validation targets (no true H&Y).
-
-Expects the same PD sheet layout as training: columns resolvable to BBS, Mini-BEST, FES,
-and H&Y (see load_pd_dataframe).
-"""
+"""Apply saved PD pipelines to an independent PD Excel (true H&Y); same column layout as training."""
 
 from __future__ import annotations
 

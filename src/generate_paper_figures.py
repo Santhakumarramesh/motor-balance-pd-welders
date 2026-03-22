@@ -1,4 +1,4 @@
-"""Build paper-ordered figures and matching caption markdown files."""
+"""Paper-ordered figures (PNG) and caption markdown under docs/captions/."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ def save_workflow_diagram(out_path: Path) -> None:
         (3.2, 2.2, 2.2, 1.2, "Phase 1\nPD-only training\n(LOOCV)"),
         (6.1, 2.2, 2.2, 1.2, "Saved pipelines\n(binary + multiclass)"),
         (3.2, 0.4, 2.2, 1.2, "Phase 2\nWelder rows\n(same features)"),
-        (6.1, 0.4, 2.2, 1.2, "Outputs\nŷ stage, P(stage),\nseverity score"),
+        (6.1, 0.4, 2.2, 1.2, "Outputs\nPred stage, P(stage),\nseverity score"),
     ]
     for x, y, w, h, txt in boxes:
         ax.add_patch(
@@ -167,7 +167,7 @@ def main() -> None:
         "--out",
         type=Path,
         default=root / "outputs" / "figures" / "paper",
-        help="Directory for paper_fig_*.png and .md",
+        help="Directory for paper_fig_*.png",
     )
     p.add_argument(
         "--ensure-run",
@@ -181,13 +181,15 @@ def main() -> None:
 
     out_dir = args.out
     out_dir.mkdir(parents=True, exist_ok=True)
+    cap_dir = root / "docs" / "captions"
+    cap_dir.mkdir(parents=True, exist_ok=True)
     fig_src = root / "outputs" / "figures"
     metrics_path = root / "outputs" / "metrics" / "phase1_metrics.json"
     met = load_metrics(metrics_path)
 
     save_workflow_diagram(out_dir / "paper_fig_01_workflow.png")
     write_caption_md(
-        out_dir / "paper_fig_01_workflow.md",
+        cap_dir / "paper_fig_01_workflow.md",
         "Figure 1 — Study workflow",
         "Conceptual flow: shared balance features from Excel → PD-only model fitting with LOOCV → "
         "saved estimators -> application to welder rows to obtain PD-like stage probabilities and "
@@ -216,13 +218,14 @@ def main() -> None:
                 "Falls Efficacy Scale; higher scores indicate greater fear of falling / lower confidence.",
             ),
         ]:
-            write_caption_md(out_dir / fname, title, body)
+            write_caption_md(cap_dir / fname, title, body)
 
     pairs = [
         ("fig_04_cv_summary_binary.png", "paper_fig_05_cv_feature_sets.png"),
         ("fig_02_confusion_binary.png", "paper_fig_06_confusion_binary.png"),
         ("fig_03_confusion_multiclass.png", "paper_fig_07_confusion_multiclass.png"),
         ("fig_05_rf_importance_binary.png", "paper_fig_11_rf_feature_importance.png"),
+        ("fig_09_multiclass_confidence_loocv.png", "paper_fig_13_multiclass_confidence_loocv.png"),
         ("fig_08_group_discrimination.png", "paper_fig_12_group_discrimination.png"),
     ]
     for src_name, dst_name in pairs:
@@ -233,36 +236,42 @@ def main() -> None:
     bb = met.get("binary_best_combined", {})
     mc = met.get("multiclass_best_combined", {})
     write_caption_md(
-        out_dir / "paper_fig_05_cv_feature_sets.md",
+        cap_dir / "paper_fig_05_cv_feature_sets.md",
         "Figure 5 — LOOCV binary performance by feature set",
         f"Best model per feature subset (BBS-only, Mini-BEST-only, FES-only, Combined). "
         f"Bars: accuracy, balanced accuracy, macro-F1. "
-        f"Combined-model selection for deployment: best macro-F1 among classifiers on Combined features "
-        f"(binary best: {bb.get('name', '—')}).",
+        f"Combined deployment selection uses ordered criteria (see docs/model_design.md); "
+        f"binary Combined winner: {bb.get('name', '—')}.",
     )
     write_caption_md(
-        out_dir / "paper_fig_06_confusion_binary.md",
+        cap_dir / "paper_fig_06_confusion_binary.md",
         "Figure 6 — Binary LOOCV confusion matrix",
         "Early (I–II) vs Late (III–IV). "
         f"LOOCV accuracy ≈ {bb.get('accuracy', 0):.3f}; macro-F1 ≈ {bb.get('f1_macro', 0):.3f}.",
     )
     write_caption_md(
-        out_dir / "paper_fig_07_confusion_multiclass.md",
+        cap_dir / "paper_fig_07_confusion_multiclass.md",
         "Figure 7 — Multiclass LOOCV confusion matrix",
         f"Stages I–IV. Exact accuracy ≈ {mc.get('accuracy', 0):.3f}; "
         f"within-one-stage accuracy ≈ {mc.get('within_one_stage_acc', 0):.3f}.",
     )
     write_caption_md(
-        out_dir / "paper_fig_11_rf_feature_importance.md",
+        cap_dir / "paper_fig_11_rf_feature_importance.md",
         "Figure 11 — Random forest feature importance (binary)",
         "Gini importance from a random forest fit on the full PD set for the binary task; "
         "illustrates relative contribution of BBS, Mini-BEST, and FES in this pilot sample.",
     )
     write_caption_md(
-        out_dir / "paper_fig_12_group_discrimination.md",
+        cap_dir / "paper_fig_12_group_discrimination.md",
         "Figure 12 — Supporting analysis: PD vs welder group discrimination",
         "5-fold stratified CV on n=30 (not the H&Y model). Shows separation on shared balance "
         "features; heavily confounded by age and cohort design — interpret as descriptive only.",
+    )
+    write_caption_md(
+        cap_dir / "paper_fig_13_multiclass_confidence_loocv.md",
+        "Figure 13 — Multiclass LOOCV predictive confidence (PD)",
+        "Left: max predicted stage probability per LOOCV fold. Right: probability assigned to the "
+        "true H&Y stage. Pilot interpretability for probabilistic outputs; not a reliability diagram.",
     )
 
     pred_path = root / "outputs" / "predictions" / "welder_predictions.xlsx"
@@ -270,22 +279,22 @@ def main() -> None:
         pred = pd.read_excel(pred_path)
         welder_supplementary_figures(pred, out_dir)
         write_caption_md(
-            out_dir / "paper_fig_08_welder_stage_distribution.md",
+            cap_dir / "paper_fig_08_welder_stage_distribution.md",
             "Figure 8 — Predicted PD-like stage (welders)",
             "Counts of argmax stage from the multiclass PD reference model. Exploratory, non-diagnostic.",
         )
         write_caption_md(
-            out_dir / "paper_fig_09_welder_stage_probabilities.md",
+            cap_dir / "paper_fig_09_welder_stage_probabilities.md",
             "Figure 9 — Stage probabilities per welder",
             "Stacked predicted probabilities across H&Y stages; conveys uncertainty and mixed resemblance.",
         )
         write_caption_md(
-            out_dir / "paper_fig_10_welder_severity_score.md",
+            cap_dir / "paper_fig_10_welder_severity_score.md",
             "Figure 10 — PD-like severity score",
             "Distribution of ∑ k·P(stage k); continuous summary for correlation-style secondary analyses.",
         )
 
-    print(f"Paper figures and captions -> {out_dir}")
+    print(f"Paper figures -> {out_dir} | captions -> {cap_dir}")
 
 
 if __name__ == "__main__":

@@ -16,8 +16,10 @@ build/
 .venv/
 venv/
 
-# Generated analysis outputs (regenerate via run_all.py); .md captions may be committed
+# Generated analysis outputs (regenerate via run_all.py)
 outputs/figures/**/*.png
+# Stale captions if any remain under paper/ (canonical: docs/captions/)
+outputs/figures/paper/*.md
 outputs/metrics/
 outputs/predictions/
 

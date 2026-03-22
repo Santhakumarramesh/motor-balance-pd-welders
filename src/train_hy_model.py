@@ -74,6 +74,23 @@ def loocv_predict(pipeline_template: Pipeline, X: np.ndarray, y: np.ndarray):
     return np.array(yt), np.array(yp)
 
 
+def loocv_predict_proba(pipeline_template: Pipeline, X: np.ndarray, y: np.ndarray):
+    """Per-fold max softmax and P(true class) for multiclass LOOCV (pilot interpretability)."""
+    loo = LeaveOneOut()
+    max_probs: list[float] = []
+    p_true: list[float] = []
+    for tr, te in loo.split(X):
+        est = clone(pipeline_template)
+        est.fit(X[tr], y[tr])
+        proba = est.predict_proba(X[te])[0]
+        classes = est.classes_
+        max_probs.append(float(np.max(proba)))
+        yi = int(y[te][0])
+        idx = np.where(classes == yi)[0]
+        p_true.append(float(proba[idx[0]]) if len(idx) else float("nan"))
+    return np.array(max_probs), np.array(p_true)
+
+
 def report_metrics(name: str, yt, yp, multiclass: bool):
     acc = accuracy_score(yt, yp)
     bal = balanced_accuracy_score(yt, yp)
@@ -323,6 +340,30 @@ def run_phase1(
     ax.set_title("Random Forest — binary model\nfeature importance (full PD fit)")
     plt.tight_layout()
     plt.savefig(out_fig / "fig_05_rf_importance_binary.png", dpi=150, bbox_inches="tight")
+    plt.close()
+
+    pipe_mc_loo = make_pipeline(best_mc_name)
+    max_probs, p_true_class = loocv_predict_proba(pipe_mc_loo, X_mc_full, y_mc)
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    axes[0].hist(max_probs, bins=8, color="#2980b9", edgecolor="k", alpha=0.85)
+    axes[0].set_xlabel("Maximum predicted probability")
+    axes[0].set_ylabel("LOOCV folds")
+    axes[0].set_title("Max P(stage) per fold")
+    axes[0].grid(axis="y", alpha=0.3)
+    pt = p_true_class[~np.isnan(p_true_class)]
+    if len(pt):
+        axes[1].hist(pt, bins=8, color="#27ae60", edgecolor="k", alpha=0.85)
+    axes[1].set_xlabel("Predicted P(true H&Y stage)")
+    axes[1].set_ylabel("LOOCV folds")
+    axes[1].set_title("Probability at true label")
+    axes[1].grid(axis="y", alpha=0.3)
+    plt.suptitle(
+        f"PD multiclass LOOCV — predictive confidence ({best_mc_name}, n={len(y_mc)})",
+        fontweight="bold",
+        fontsize=11,
+    )
+    plt.tight_layout()
+    plt.savefig(out_fig / "fig_09_multiclass_confidence_loocv.png", dpi=150, bbox_inches="tight")
     plt.close()
 
     models_dir.mkdir(parents=True, exist_ok=True)
