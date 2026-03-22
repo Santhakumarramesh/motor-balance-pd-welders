@@ -52,6 +52,8 @@ Use `python run_all.py --exposure` if you want Phase 2 exposure correlations and
 **Data:** `data/PD_WELDERS RAW Long Data-2.xlsx`  
 **Seed:** `42` (`src/utils.py`)
 
+**Welder classification (Phase 2):** Row-level outputs are in **`outputs/predictions/welder_predictions.xlsx`**. Main columns: `ID`, **`Pred_Stage`** (argmax PD-like stage, not clinical H&Y), **`P_Stage1`…`P_Stage4`**, **`PD_Severity_Score`**. Figure: **`outputs/figures/fig_07_welder_projection.png`**. Compact table (Welder ID, PD-like stage, severity, **Confidence** = max of stage probabilities): `python -m src.summarize_welder_predictions` → `welder_predictions_summary.csv` (uses `row_1`, `row_2`, … if `ID` is empty in the sheet).
+
 ---
 
 ## Other entry points
@@ -63,6 +65,7 @@ Use `python run_all.py --exposure` if you want Phase 2 exposure correlations and
 | `python -m src.generate_paper_figures --ensure-run` | Build paper PNGs + `docs/captions/*.md`; optional full pipeline |
 | `python -m src.write_summary_report` | Regenerate `outputs/summary_report.md` from metrics JSON |
 | `python -m src.smoke_test` | Quick checks: data load, train, inference |
+| `python -m src.summarize_welder_predictions` | Compact CSV from `welder_predictions.xlsx` (ID, stage, score, confidence) |
 | `python -m src.validate_external_pd FILE.xlsx` | **External PD cohort:** frozen pipelines, metrics JSON (requires true H&Y) |
 
 Design reference: **`docs/model_design.md`**. Model card: **`docs/model_card.md`**. Reviewer framing: **`docs/reviewer_brief.md`**.  
@@ -94,7 +97,8 @@ motor-balance-pd-welders/
 │   ├── validate_external_pd.py
 │   ├── generate_paper_figures.py
 │   ├── write_summary_report.py
-│   └── smoke_test.py
+│   ├── smoke_test.py
+│   └── summarize_welder_predictions.py
 ├── models/                   # Generated *.joblib (gitignored)
 ├── outputs/
 │   ├── figures/              # Pipeline fig_01–fig_09 (incl. fig_08 benchmark)
@@ -161,6 +165,7 @@ python -m src.generate_paper_figures --help
 python -m src.validate_external_pd --help
 python -m src.write_summary_report --help
 python -m src.smoke_test --help
+python -m src.summarize_welder_predictions --help
 ```
 
 ---
