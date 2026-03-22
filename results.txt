@@ -1,8 +1,9 @@
 Motor-Balance PD-Referenced Classification — Results Summary
 
 REFERENCE SNAPSHOT (for papers / portfolio / README — verify against phase1_metrics.json)
-  Binary LOOCV (Combined, RF): accuracy 0.857; macro-F1 0.844; balanced accuracy 0.844
-  Multiclass LOOCV (Combined, RF): exact accuracy 0.500; within-one-stage 1.000; macro-F1 0.271
+  Dataset: data/PD_WELDERS RAW Long Data.xlsx (blank balance rows dropped on load)
+  Binary LOOCV (Combined, Logistic Regression): accuracy 0.800; macro-F1 0.785; balanced accuracy 0.778
+  Multiclass LOOCV (Combined, Logistic Regression): exact accuracy 0.400; within-one-stage 0.933; macro-F1 0.222
   Re-run `python run_all.py` refreshes JSON/summary_report.md; update this block if you adopt a new reference run.
 
 PRIMARY DESIGN (MAIN CLAIM)
@@ -13,7 +14,7 @@ a PD diagnosis and not a true clinical H&Y assignment in welders.
 
 SUPPORTING BENCHMARK (NOT THE H&Y MODEL)
 PD vs Welder group discrimination on the same three balance features: stratified 5-fold CV,
-n=30 (14 vs 16). Metrics in outputs/metrics/group_discrimination.json; figure
+n=31 (15 vs 16). Metrics in outputs/metrics/group_discrimination.json; figure
 fig_08_group_discrimination.png. Confounded by age and cohort — descriptive / supporting only.
 
 SECONDARY ANALYSIS (EXPLORATORY)
@@ -44,9 +45,9 @@ Multiclass task (H&Y stages I–IV):
   • Within-one-stage accuracy: see "multiclass_best_combined.within_one_stage_acc"
   • Macro-F1: see "multiclass_best_combined.f1_macro"
 
-Representative replication snapshot (Random Forest, Combined, current dataset):
-  • Binary LOOCV accuracy ≈ 0.857; macro-F1 ≈ 0.844
-  • Multiclass LOOCV exact accuracy ≈ 0.50; within-one-stage ≈ 1.00
+Representative replication snapshot (best Combined model, default data file):
+  • Binary LOOCV accuracy ≈ 0.80; macro-F1 ≈ 0.785
+  • Multiclass LOOCV exact accuracy ≈ 0.40; within-one-stage ≈ 0.93
 
 WELDER OUTPUTS (PHASE 2)
 Per row: Pred_Stage, P_Stage1…P_Stage4 (as trained), PD_Severity_Score = Σ k·P(stage k);
@@ -71,7 +72,7 @@ When external data are unavailable, state explicitly that findings are hypothesi
 See docs/external_validation.md. When data exist: python -m src.validate_external_pd <file.xlsx>
 
 LIMITATIONS
-n=14 PD; H&Y imbalance; no external PD cohort in this study; age gap between cohorts;
+n=15 PD in default dataset (pilot); H&Y imbalance; no external PD cohort in this study; age gap between cohorts;
 three scales only; welder outputs are non-diagnostic and exploratory.
 
 RECOMMENDED REPORTING
@@ -81,5 +82,5 @@ PD-like motor-balance severity resemblance categories using multiclass probabili
 severity score.
 
 LAST RUN (duplicate check — should match REFERENCE SNAPSHOT and summary_report.md when unchanged)
-  • Binary LOOCV (Combined, RF): accuracy ≈ 0.857; macro-F1 ≈ 0.844; balanced acc ≈ 0.844
-  • Multiclass LOOCV (Combined, RF): exact accuracy ≈ 0.50; within-one-stage ≈ 1.00
+  • Binary LOOCV (Combined, LR): accuracy ≈ 0.800; macro-F1 ≈ 0.785; balanced acc ≈ 0.778
+  • Multiclass LOOCV (Combined, LR): exact accuracy ≈ 0.40; within-one-stage ≈ 0.93

@@ -10,7 +10,7 @@ Welders **cannot** substitute for external PD validation: they have **no** true 
 
 Use clear, reviewer-friendly language in the **Limitations** or **Discussion**:
 
-> External validation was not performed in this pilot study. The PD reference models were assessed with leave-one-out cross-validation on a single small cohort (*n* = 14 PD patients). Findings are therefore hypothesis-generating and require evaluation on an **independent PD sample** with H&Y staging and the same balance instruments before broader interpretation or clinical use.
+> External validation was not performed in this pilot study. The PD reference models were assessed with leave-one-out cross-validation on a single small cohort (*n* = 15 PD patients (default training cohort)). Findings are therefore hypothesis-generating and require evaluation on an **independent PD sample** with H&Y staging and the same balance instruments before broader interpretation or clinical use.
 
 Optional **next step**:
 

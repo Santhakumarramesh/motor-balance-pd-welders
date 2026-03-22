@@ -11,7 +11,7 @@ This note summarizes how an independent evaluator might read this repository: **
 
 ## Major concerns (inherent to the study)
 
-- **Small cohort:** 14 PD / 16 welders limits stability, confidence intervals, and generalizability — acknowledged in-repo but remains the main scientific ceiling.
+- **Small cohort:** 15 PD / 16 welders (default `PD_WELDERS RAW Long Data.xlsx`) limits stability, confidence intervals, and generalizability — acknowledged in-repo but remains the main scientific ceiling.
 - **No completed external validation** on an independent PD cohort with true H&Y; protocol and script: **`docs/external_validation.md`**, `python -m src.validate_external_pd`.
 - **PD vs welder benchmark** is **descriptive** and **confounded** (e.g. age/cohort); not disease-specific separation — see **`docs/model_design.md`** (supporting benchmark section).
 - **Three balance scales only** — interpretable but limited predictive richness vs. broader clinical or gait assessment.

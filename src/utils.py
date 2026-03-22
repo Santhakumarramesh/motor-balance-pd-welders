@@ -21,8 +21,18 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+DEFAULT_DATA_FILENAME = "PD_WELDERS RAW Long Data.xlsx"
+
+
 def default_data_path() -> Path:
-    return repo_root() / "data" / "PD_WELDERS RAW Long Data-2.xlsx"
+    return repo_root() / "data" / DEFAULT_DATA_FILENAME
+
+
+def drop_rows_missing_all_balance_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Drop trailing/blank Excel rows with no BBS, Mini, or FES."""
+    if df.empty:
+        return df
+    return df.dropna(subset=list(FEATURES), how="all").reset_index(drop=True)
 
 
 def parse_hy(val: Any) -> float:
@@ -72,7 +82,7 @@ def load_pd_dataframe(xl_path: Path | str, sheet: str | int = "PD") -> pd.DataFr
         else (1 if pd.notna(v) and v >= 3 else np.nan)
     )
     df["HY_bin_label"] = df["HY_bin"].map({0: "Early (I-II)", 1: "Late (III-IV)"})
-    return df
+    return drop_rows_missing_all_balance_features(df)
 
 
 def parse_fall_wd(v: Any) -> float:
@@ -118,6 +128,7 @@ def load_wd_dataframe(xl_path: Path | str) -> pd.DataFrame:
     path = Path(xl_path)
     raw = pd.ExcelFile(path).parse("WD")
     mini_col = _norm_mini_col(raw.columns) or "MINI-BEST SCORE"
+    id_col = find_id_column(raw)
 
     def col_find(pred):
         for c in raw.columns:
@@ -135,9 +146,12 @@ def load_wd_dataframe(xl_path: Path | str) -> pd.DataFrame:
 
     records = []
     for _, r in raw.iterrows():
+        pid = r.get(id_col, "") if id_col else ""
+        if pd.isna(pid):
+            pid = ""
         records.append(
             {
-                "ID": r.get("Participant's Name", ""),
+                "ID": pid,
                 "Age": pd.to_numeric(r.get("Age"), errors="coerce"),
                 "BBS": pd.to_numeric(r.get("BBS"), errors="coerce"),
                 "Mini": pd.to_numeric(r.get(mini_col), errors="coerce"),
@@ -151,7 +165,7 @@ def load_wd_dataframe(xl_path: Path | str) -> pd.DataFrame:
                 "RespPPE": encode_ppe(r.get(resp_c) if resp_c else np.nan),
             }
         )
-    return pd.DataFrame(records)
+    return drop_rows_missing_all_balance_features(pd.DataFrame(records))
 
 
 def w_stage(yrs: float) -> float:

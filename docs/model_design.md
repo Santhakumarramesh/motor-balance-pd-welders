@@ -2,8 +2,8 @@
 
 ## Training cohort
 
-- **Source:** PD sheet in `data/PD_WELDERS RAW Long Data-2.xlsx`
-- **Sample size:** *n* = 14 (pilot)
+- **Source:** PD sheet in the default Excel (`data/PD_WELDERS RAW Long Data.xlsx`; see `src/utils.py`)
+- **Sample size:** *n* = 15 PD rows with complete balance data after dropping blank rows (pilot; default data file)
 - **Label (multiclass):** Hoehn & Yahr stage I–IV (parsed from text fields)
 - **Label (binary):** Early = stages I–II; Late = stages III–IV
 
@@ -73,7 +73,7 @@ Welding years, PPE, etc., vs `PD_Severity_Score` (Spearman) — **exploratory**;
 
 ### B. PD vs welder group discrimination (supporting benchmark)
 
-**Not** the H&Y reference model. Binary label: PD (*n* = 14) vs Welder (*n* = 16) on the same three balance features. **5-fold stratified cross-validation**, same pipelines and feature subsets (BBS-only, Mini-only, FES-only, Combined).
+**Not** the H&Y reference model. Binary label: PD (*n* = 15) vs Welder (*n* = 16) on the same three balance features. **5-fold stratified cross-validation**, same pipelines and feature subsets (BBS-only, Mini-only, FES-only, Combined).
 
 Output: `outputs/metrics/group_discrimination.json`, figure `outputs/figures/fig_08_group_discrimination.png`.
 

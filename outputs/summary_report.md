@@ -4,15 +4,15 @@ Generated from `outputs/metrics/*.json` after `python run_all.py`. Numbers shoul
 
 ## PD reference models (LOOCV, Combined features)
 
-- **Binary (Early vs Late):** Random Forest — accuracy=0.857, balanced_acc=0.844, macro-F1=0.844
-- **Multiclass (H&Y I–IV):** Random Forest — exact acc=0.500, within-one-stage=1.000, macro-F1=0.271
+- **Binary (Early vs Late):** Logistic Regression — accuracy=0.800, balanced_acc=0.778, macro-F1=0.785
+- **Multiclass (H&Y I–IV):** Logistic Regression — exact acc=0.400, within-one-stage=0.933, macro-F1=0.222
 
 *Selection rule (Combined):* binary — macro-F1 → balanced accuracy → accuracy; multiclass — macro-F1 → balanced accuracy → within-one-stage accuracy → accuracy (see `docs/model_design.md`).
 
 ## Supporting benchmark: PD vs welder (not the H&Y model)
 
-- **Design:** 5-fold_stratified_cv on n=30 (PD=14, welder=16).
-- **Best on Combined (by macro-F1):** Random Forest — acc=0.800, bal_acc=0.795, macro-F1=0.796
+- **Design:** 5-fold_stratified_cv on n=31 (PD=15, welder=16).
+- **Best on Combined (by macro-F1):** Random Forest — acc=0.806, bal_acc=0.804, macro-F1=0.805
 
 ## Main output paths
 

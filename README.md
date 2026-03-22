@@ -1,7 +1,7 @@
 # Motor Balance Analysis: PD-Referenced Severity Model + Welder Projection
 
 > **Pilot study — exploratory analysis only.**  
-> n = 30 (14 PD, 16 welders). Hypothesis-generating, not clinically validated.
+> n = 31 (15 PD, 16 welders) with default `PD_WELDERS RAW Long Data.xlsx`. Hypothesis-generating, not clinically validated.
 
 **Repository:** [github.com/Santhakumarramesh/motor-balance-pd-welders](https://github.com/Santhakumarramesh/motor-balance-pd-welders)
 
@@ -15,16 +15,16 @@
 
 **Secondary (optional):** Correlations between PD-like severity and welding exposure variables are **exploratory**. They are **off by default**; enable with `python run_all.py --exposure` or `python -m src.project_welders --exposure`. See `outputs/metrics/phase2_associations.json`. Do not treat them as the headline finding.
 
-### Headline PD metrics (LOOCV, Combined features, Random Forest)
+### Headline PD metrics (LOOCV, Combined features, best model)
 
-Use **one frozen pipeline run** for papers, resumes, and `results.txt`; **source of truth** is always `outputs/metrics/phase1_metrics.json` (re-running may change digits slightly).
+Use **one frozen pipeline run** for papers, resumes, and `results.txt`; **source of truth** is always `outputs/metrics/phase1_metrics.json` (re-running or changing the Excel may change model choice and digits).
 
 | Task | LOOCV accuracy | Other (same run) |
 |------|----------------|-------------------|
-| Binary (Early vs Late) | **0.857** | macro-F1 **0.844**, balanced accuracy **0.844** |
-| Multiclass (H&Y I–IV) | **0.500** (exact) | within-one-stage **1.000**, macro-F1 **0.271** |
+| Binary (Early vs Late) | **0.800** | macro-F1 **0.785**, balanced accuracy **0.778** |
+| Multiclass (H&Y I–IV) | **0.400** (exact) | within-one-stage **0.933**, macro-F1 **0.222** |
 
-*`outputs/summary_report.md` and `results.txt` should match these headline values.*
+*Default dataset: `data/PD_WELDERS RAW Long Data.xlsx`. `outputs/summary_report.md` and `results.txt` should match these headline values for that run.*
 
 ---
 
@@ -49,7 +49,7 @@ python run_all.py
 
 Use `python run_all.py --exposure` if you want Phase 2 exposure correlations and the third panel of `fig_07_welder_projection.png`.
 
-**Data:** `data/PD_WELDERS RAW Long Data-2.xlsx`  
+**Data:** `data/PD_WELDERS RAW Long Data.xlsx` (default path in `src/utils.py`)  
 **Seed:** `42` (`src/utils.py`)
 
 **Welder classification (Phase 2):** Row-level outputs are in **`outputs/predictions/welder_predictions.xlsx`**. Main columns: `ID`, **`Pred_Stage`** (argmax PD-like stage, not clinical H&Y), **`P_Stage1`…`P_Stage4`**, **`PD_Severity_Score`**. Figure: **`outputs/figures/fig_07_welder_projection.png`**. Compact table (Welder ID, PD-like stage, severity, **Confidence** = max of stage probabilities): `python -m src.summarize_welder_predictions` → `welder_predictions_summary.csv` (uses `row_1`, `row_2`, … if `ID` is empty in the sheet).
@@ -87,7 +87,7 @@ This applies **frozen** `models/hy_*_pipeline.joblib` and writes `outputs/metric
 ```
 motor-balance-pd-welders/
 ├── data/
-│   └── PD_WELDERS RAW Long Data-2.xlsx
+│   └── PD_WELDERS RAW Long Data.xlsx
 ├── src/
 │   ├── utils.py
 │   ├── train_hy_model.py
@@ -145,7 +145,7 @@ motor-balance-pd-welders/
 
 | Issue | Impact |
 |-------|--------|
-| n = 14 PD, 16 welders | Wide CIs; exploratory only |
+| n = 15 PD, 16 welders (default data file) | Wide CIs; exploratory only |
 | Age gap (PD vs welders) | Major confound |
 | Three balance scales only | No ABC / TUG |
 | Welder labels | PD-like resemblance, not diagnosis |
@@ -154,7 +154,7 @@ motor-balance-pd-welders/
 
 ## Development
 
-**CI:** A workflow file is provided at `.github/workflows/ci.yml` (runs `python -m src.smoke_test` on push/PR). It must be pushed with a GitHub token that has the **`workflow` scope** (or add the file via the GitHub web UI). Requires `data/PD_WELDERS RAW Long Data-2.xlsx` in the repo for the job to pass.
+**CI:** A workflow file is provided at `.github/workflows/ci.yml` (runs `python -m src.smoke_test` on push/PR). It must be pushed with a GitHub token that has the **`workflow` scope** (or add the file via the GitHub web UI). Requires the default Excel under `data/` (see `DEFAULT_DATA_FILENAME` in `src/utils.py`) for the job to pass.
 
 ```bash
 python -m src.train_hy_model --help
