@@ -142,7 +142,19 @@ FEATURE_SETS = {
 }
 
 
-def select_best_model(metric_rows: list[dict]) -> dict:
+def select_best_model(metric_rows: list[dict], *, multiclass: bool = False) -> dict:
+    if multiclass:
+
+        def mc_key(r: dict):
+            w1 = r.get("within_one_stage_acc")
+            return (
+                r["f1_macro"],
+                r["balanced_accuracy"],
+                w1 if w1 is not None else 0.0,
+                r["accuracy"],
+            )
+
+        return max(metric_rows, key=mc_key)
     return max(
         metric_rows,
         key=lambda r: (r["f1_macro"], r["balanced_accuracy"], r["accuracy"]),
@@ -249,11 +261,11 @@ def run_phase1(
         results["multiclass"][fs_name] = {"models": rows, "baseline": baseline_mc}
 
     bin_combined = results["binary"]["Combined"]["models"]
-    best_bin_row = select_best_model(bin_combined)
+    best_bin_row = select_best_model(bin_combined, multiclass=False)
     best_bin_name = best_bin_row["name"]
 
     mc_combined = results["multiclass"]["Combined"]["models"]
-    best_mc_row = select_best_model(mc_combined)
+    best_mc_row = select_best_model(mc_combined, multiclass=True)
     best_mc_name = best_mc_row["name"]
 
     X_bin_full = df_bin[list(FEATURES)].values.astype(float)
@@ -289,7 +301,7 @@ def run_phase1(
     width = 0.6
     for ax, fs_name in zip(axes, FEATURE_SETS.keys()):
         mrows = results["binary"][fs_name]["models"]
-        best = select_best_model(mrows)
+        best = select_best_model(mrows, multiclass=False)
         vals = [best[m] for m in metrics_names]
         ax.bar(x, vals, width, color="steelblue", edgecolor="k")
         ax.set_xticks(x)

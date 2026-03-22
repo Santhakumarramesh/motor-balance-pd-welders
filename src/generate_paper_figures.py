@@ -223,6 +223,7 @@ def main() -> None:
         ("fig_02_confusion_binary.png", "paper_fig_06_confusion_binary.png"),
         ("fig_03_confusion_multiclass.png", "paper_fig_07_confusion_multiclass.png"),
         ("fig_05_rf_importance_binary.png", "paper_fig_11_rf_feature_importance.png"),
+        ("fig_08_group_discrimination.png", "paper_fig_12_group_discrimination.png"),
     ]
     for src_name, dst_name in pairs:
         src = fig_src / src_name
@@ -256,6 +257,12 @@ def main() -> None:
         "Figure 11 — Random forest feature importance (binary)",
         "Gini importance from a random forest fit on the full PD set for the binary task; "
         "illustrates relative contribution of BBS, Mini-BEST, and FES in this pilot sample.",
+    )
+    write_caption_md(
+        out_dir / "paper_fig_12_group_discrimination.md",
+        "Figure 12 — Supporting analysis: PD vs welder group discrimination",
+        "5-fold stratified CV on n=30 (not the H&Y model). Shows separation on shared balance "
+        "features; heavily confounded by age and cohort design — interpret as descriptive only.",
     )
 
     pred_path = root / "outputs" / "predictions" / "welder_predictions.xlsx"

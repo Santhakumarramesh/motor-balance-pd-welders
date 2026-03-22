@@ -29,8 +29,9 @@ python run_all.py
 `run_all.py` runs:
 
 1. `python -m src.train_hy_model` — PD LOOCV, feature ablation, saves `models/hy_*_pipeline.joblib`, `outputs/metrics/phase1_metrics.json`, `outputs/figures/fig_01`–`fig_05`.
-2. `python -m src.project_welders` — welder projection, `outputs/predictions/welder_predictions.xlsx`, `fig_06`–`fig_07`.
-3. `python -m src.generate_paper_figures` — paper-ordered figures + captions: `outputs/figures/paper/`.
+2. `python -m src.benchmark_group_discrimination` — **supporting** PD vs welder group benchmark (5-fold CV), `outputs/metrics/group_discrimination.json`, `fig_08_group_discrimination.png`.
+3. `python -m src.project_welders` — welder projection, `outputs/predictions/welder_predictions.xlsx`, `fig_06`–`fig_07`.
+4. `python -m src.generate_paper_figures` — paper-ordered figures + captions: `outputs/figures/paper/`.
 
 **Data:** `data/PD_WELDERS RAW Long Data-2.xlsx`  
 **Seed:** `42` (`src/utils.py`)
@@ -42,6 +43,7 @@ python run_all.py
 | Command | Purpose |
 |---------|---------|
 | `python -m src.predict_excel INPUT.xlsx` | Inference on **any** Excel with BBS / Mini-BEST / FES columns (auto-detected); writes `outputs/predictions/inference_predictions.xlsx` by default |
+| `python -m src.benchmark_group_discrimination` | Supporting PD vs welder 5-fold CV benchmark |
 | `python -m src.generate_paper_figures --ensure-run` | Build paper figures + `.md` captions; if needed, runs full pipeline first |
 
 Design reference: **`docs/model_design.md`**.  
@@ -110,6 +112,7 @@ motor-balance-pd-welders/
 
 ```bash
 python -m src.train_hy_model --help
+python -m src.benchmark_group_discrimination --help
 python -m src.project_welders --help
 python -m src.predict_excel --help
 python -m src.generate_paper_figures --help

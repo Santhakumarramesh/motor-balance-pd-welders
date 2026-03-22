@@ -7,6 +7,11 @@ the Combined feature set). Apply the multiclass pipeline to welders to obtain PD
 probabilities and a continuous PD-like severity score. This is a resemblance framework, not
 a PD diagnosis and not a true clinical H&Y assignment in welders.
 
+SUPPORTING BENCHMARK (NOT THE H&Y MODEL)
+PD vs Welder group discrimination on the same three balance features: stratified 5-fold CV,
+n=30 (14 vs 16). Metrics in outputs/metrics/group_discrimination.json; figure
+fig_08_group_discrimination.png. Confounded by age and cohort — descriptive / supporting only.
+
 SECONDARY ANALYSIS (EXPLORATORY)
 Associations between PD-like severity score and welding exposure variables (e.g. years,
 PPE) are optional, hypothesis-generating, and must not overshadow the primary PD-reference

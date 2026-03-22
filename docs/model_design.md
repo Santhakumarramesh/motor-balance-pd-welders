@@ -41,8 +41,11 @@ For each of binary and multiclass tasks, models are fit on:
 
 ## Production model selection (saved artifacts)
 
-- **Criterion:** Maximum **macro-F1** on the **Combined** feature set, among the three algorithms.
-- **Tie-break:** Higher balanced accuracy, then higher exact accuracy (implicit in `select_best_model` ordering).
+Models are compared on the **Combined** feature set (BBS + Mini-BEST + FES). Selection uses the same ordering for all classifier types:
+
+**Binary (Early vs Late):** maximize (macro-F1 → balanced accuracy → accuracy).
+
+**Multiclass (H&Y I–IV):** maximize (macro-F1 → balanced accuracy → within-one-stage accuracy → accuracy).
 
 Saved files:
 
@@ -64,10 +67,21 @@ The **multiclass** pipeline is the primary vehicle for welder **stage probabilit
 
 ## Secondary analyses (optional)
 
-Exposure variables (e.g. welding years, PPE) and Spearman correlations with `PD_Severity_Score` are **exploratory** and should not be presented as the primary study claim.
+### A. Exposure associations
+
+Welding years, PPE, etc., vs `PD_Severity_Score` (Spearman) — **exploratory**; not the primary claim.
+
+### B. PD vs welder group discrimination (supporting benchmark)
+
+**Not** the H&Y reference model. Binary label: PD (*n* = 14) vs Welder (*n* = 16) on the same three balance features. **5-fold stratified cross-validation**, same pipelines and feature subsets (BBS-only, Mini-only, FES-only, Combined).
+
+Output: `outputs/metrics/group_discrimination.json`, figure `outputs/figures/fig_08_group_discrimination.png`.
+
+**Caveat:** Strong age and cohort confounding — use only to show group separation on balance scores, not causal inference.
 
 ## Reproducibility
 
 - Random seed: **42** (`src/utils.py`)
-- Run: `python run_all.py` then `python -m src.generate_paper_figures`
-- Metrics: `outputs/metrics/phase1_metrics.json`
+- Dependencies: pinned in `requirements.txt`
+- Run: `python run_all.py` (trains → group benchmark → welder projection → paper figures)
+- Metrics: `outputs/metrics/phase1_metrics.json`, `outputs/metrics/group_discrimination.json`

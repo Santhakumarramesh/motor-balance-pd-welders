@@ -13,6 +13,7 @@ After `python run_all.py` (Phases 1–2).
 | `fig_05_rf_importance_binary.png` | RF feature importance (binary) |
 | `fig_06_pd_vs_welder_balance.png` | PD vs welder (three panels) |
 | `fig_07_welder_projection.png` | Severity, probabilities, exposure (secondary) |
+| `fig_08_group_discrimination.png` | Supporting: PD vs welder group CV (5-fold) |
 
 ## Paper-ordered set (`outputs/figures/paper/`)
 
@@ -28,6 +29,7 @@ Each `paper_fig_*.png` has a matching `paper_fig_*.md` caption (markdown may be 
 | `paper_fig_06`–`07` | Binary / multiclass confusion (copies) |
 | `paper_fig_08`–`10` | Welder stage distribution, probabilities, severity score |
 | `paper_fig_11` | RF importance (copy of fig_05) |
+| `paper_fig_12` | Group discrimination (copy of fig_08) |
 
 Predictions: `outputs/predictions/welder_predictions.xlsx`  
 Metrics: `outputs/metrics/phase1_metrics.json`
