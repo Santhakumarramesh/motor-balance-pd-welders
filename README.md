@@ -1,23 +1,23 @@
 # Motor Balance Analysis: PD-Referenced Severity Model + Welder Projection
 
 > **Pilot study — exploratory analysis only.**  
-> n = 30 (14 PD, 16 welders). Results are hypothesis-generating, not clinically validated predictions.
+> n = 30 (14 PD, 16 welders). Hypothesis-generating, not clinically validated.
 
 **Repository:** [github.com/Santhakumarramesh/motor-balance-pd-welders](https://github.com/Santhakumarramesh/motor-balance-pd-welders)
 
 ---
 
-## Research question
+## Primary research design
 
-> Can welding-exposed workers be positioned relative to Parkinson’s Disease H&Y motor-balance severity patterns — and does resemblance to more severe PD profiles correlate with heavier welding exposure?
+**Main claim:** Train a **PD-only** H&Y reference model on **BBS, Mini-BEST, and FES** (leave-one-out CV), save the best pipelines, then **classify welder rows into PD-like motor-balance severity categories** using multiclass stage probabilities and a **PD-like severity score**. This is **resemblance in a PD-learned space**, not a diagnosis of PD in welders and not a true clinical H&Y stage in welders.
 
-This is a **PD severity reference → welder projection** design. Welders receive a **PD-like** motor-balance resemblance profile, not a clinical PD diagnosis or true H&Y staging.
+**Secondary (optional):** Correlations between PD-like severity and welding exposure variables are **exploratory**; see `outputs/metrics/phase2_associations.json`. Do not treat them as the headline finding.
 
 ---
 
-## Quick start (recommended)
+## Quick start
 
-From the **repository root** (directory that contains `run_all.py`):
+From the **repository root**:
 
 ```bash
 python3 -m venv .venv
@@ -26,14 +26,26 @@ pip install -r requirements.txt
 python run_all.py
 ```
 
-This runs, in order:
+`run_all.py` runs:
 
-1. `python -m src.train_hy_model` — PD-only LOOCV, feature-set ablation, saves **sklearn Pipelines** under `models/`, metrics under `outputs/metrics/`, figures under `outputs/figures/`.
-2. `python -m src.project_welders` — projects welders, writes `outputs/predictions/welder_predictions.xlsx` and further figures.
+1. `python -m src.train_hy_model` — PD LOOCV, feature ablation, saves `models/hy_*_pipeline.joblib`, `outputs/metrics/phase1_metrics.json`, `outputs/figures/fig_01`–`fig_05`.
+2. `python -m src.project_welders` — welder projection, `outputs/predictions/welder_predictions.xlsx`, `fig_06`–`fig_07`.
+3. `python -m src.generate_paper_figures` — paper-ordered figures + captions: `outputs/figures/paper/`.
 
-**Data file (required):** `data/PD_WELDERS RAW Long Data-2.xlsx`
+**Data:** `data/PD_WELDERS RAW Long Data-2.xlsx`  
+**Seed:** `42` (`src/utils.py`)
 
-**Random seed:** `42` (see `src/utils.py` and `models/schema.json` after training).
+---
+
+## Other entry points
+
+| Command | Purpose |
+|---------|---------|
+| `python -m src.predict_excel INPUT.xlsx` | Inference on **any** Excel with BBS / Mini-BEST / FES columns (auto-detected); writes `outputs/predictions/inference_predictions.xlsx` by default |
+| `python -m src.generate_paper_figures --ensure-run` | Build paper figures + `.md` captions; if needed, runs full pipeline first |
+
+Design reference: **`docs/model_design.md`**.  
+Narrative summary: **`results.txt`** (align numbers with `phase1_metrics.json`).
 
 ---
 
@@ -44,16 +56,21 @@ motor-balance-pd-welders/
 ├── data/
 │   └── PD_WELDERS RAW Long Data-2.xlsx
 ├── src/
-│   ├── utils.py              # Loading, parsing, column normalization
-│   ├── train_hy_model.py     # Phase 1 — LOOCV + save Pipelines
-│   └── project_welders.py      # Phase 2 — welder projection + associations
-├── models/                   # Generated: *.joblib, schema.json (not all tracked in git)
+│   ├── utils.py
+│   ├── train_hy_model.py
+│   ├── project_welders.py
+│   ├── predict_excel.py
+│   └── generate_paper_figures.py
+├── models/                   # Generated *.joblib (gitignored)
 ├── outputs/
-│   ├── figures/              # fig_01 … fig_07
+│   ├── figures/              # Pipeline fig_01 … fig_07
+│   ├── figures/paper/        # paper_fig_*.png + .md captions
 │   ├── metrics/              # phase1_metrics.json, phase2_associations.json
-│   └── predictions/          # welder_predictions.xlsx
-├── notebooks/                # Optional interactive workflow (Colab-friendly)
-├── docs/paper_figure_plan.md
+│   └── predictions/
+├── notebooks/
+├── docs/
+│   ├── model_design.md
+│   └── paper_figure_plan.md
 ├── results.txt
 ├── run_all.py
 ├── requirements.txt
@@ -62,41 +79,19 @@ motor-balance-pd-welders/
 
 ---
 
-## Model pipeline (scripts)
+## Model pipeline (summary)
 
-- **Inputs (PD training):** `BBS`, `Mini` (Mini-BEST), `FES` — same columns for welders at inference.
-- **Preprocessing (inside each CV fold / full fit):** `SimpleImputer(median)` → `StandardScaler` → classifier.
-- **Targets:**  
-  - Binary: Early H&Y I–II vs Late III–IV.  
-  - Multiclass: stages I–IV (used for welder class probabilities and PD-like severity score \(\sum_k P(\text{stage } k)\times k\)).
-- **Validation:** Leave-one-out CV (LOOCV) on PD only; bootstrap 95% CIs for accuracy / macro-F1 on LOOCV vectors.
-- **Algorithms compared:** Logistic Regression, Random Forest, Gradient Boosting. **Production** artifacts use the **best macro-F1** model on the **Combined** feature set (see `outputs/metrics/phase1_metrics.json`).
+- **Features:** `BBS`, `Mini`, `FES` — same for PD training and welder inference.
+- **Preprocessing:** `SimpleImputer(median)` → `StandardScaler` → classifier (inside each LOOCV fold).
+- **Selection:** Best **macro-F1** on the **Combined** feature set among logistic regression, random forest, gradient boosting; saved pipelines in `models/`.
+- **Welder output:** `Pred_Stage`, `P_Stage*`, `PD_Severity_Score` from the multiclass pipeline.
 
 ---
 
 ## Notebooks (optional)
 
-- `notebooks/phase1_pd_hy_model.ipynb` — mirrors Phase 1; saves **legacy** `pd_hy_*.pkl` (scaler + clf) under `../models/` when run with kernel cwd = `notebooks/`.
-- `notebooks/phase2_welder_projection.ipynb` — loads **`../models/hy_*_pipeline.joblib`** if present (from `run_all.py`), else legacy `../models/pd_hy_*.pkl`.
-
-For Colab, upload the Excel file when prompted; on local Jupyter, paths assume notebooks live in `notebooks/`.
-
----
-
-## Phase 1 summary (illustrative; see `phase1_metrics.json` after you run)
-
-| Task | Notes |
-|------|--------|
-| Binary Early vs Late | LOOCV; compare with majority baseline |
-| Multiclass I–IV | Prefer **within-one-stage** accuracy when interpreting |
-| Feature ablation | BBS-only, Mini-BEST-only, FES-only, Combined (see `fig_04_cv_summary_binary.png`) |
-
----
-
-## Phase 2 outputs
-
-- Per-welder: predicted binary class, multiclass stage, stage probabilities, **PD-like severity score** (1–4).
-- Spearman associations vs exposure variables → `outputs/metrics/phase2_associations.json`.
+- `notebooks/phase1_pd_hy_model.ipynb` — mirrors Phase 1; saves legacy `pd_hy_*.pkl` under `../models/` if run from `notebooks/`.
+- `notebooks/phase2_welder_projection.ipynb` — loads `../models/hy_*_pipeline.joblib` when present.
 
 ---
 
@@ -105,9 +100,9 @@ For Colab, upload the Excel file when prompted; on local Jupyter, paths assume n
 | Issue | Impact |
 |-------|--------|
 | n = 14 PD, 16 welders | Wide CIs; exploratory only |
-| Large age gap (PD vs welders) | Major confound |
+| Age gap (PD vs welders) | Major confound |
 | Three balance scales only | No ABC / TUG |
-| PD-referenced welder labels | Resemblance, not diagnosis |
+| Welder labels | PD-like resemblance, not diagnosis |
 
 ---
 
@@ -116,14 +111,10 @@ For Colab, upload the Excel file when prompted; on local Jupyter, paths assume n
 ```bash
 python -m src.train_hy_model --help
 python -m src.project_welders --help
+python -m src.predict_excel --help
+python -m src.generate_paper_figures --help
 ```
 
 ---
 
-## Honest framing
-
-This study develops a **PD-referenced motor-balance framework** by training on Parkinson’s H&Y severity and projecting welders into that learned space. Findings are **hypothesis-generating** and require replication in a larger, age-matched cohort.
-
----
-
-*Validation: LOOCV on PD. Bootstrap: 1000 resamples on LOOCV prediction vectors. Non-parametric tests (Spearman) used for associations where appropriate.*
+*LOOCV on PD; bootstrap CIs on LOOCV vectors. Spearman for exploratory exposure associations.*

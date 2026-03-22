@@ -16,8 +16,8 @@ build/
 .venv/
 venv/
 
-# Generated analysis outputs (reproducible via run_all.py)
-outputs/figures/
+# Generated analysis outputs (regenerate via run_all.py); .md captions may be committed
+outputs/figures/**/*.png
 outputs/metrics/
 outputs/predictions/
 

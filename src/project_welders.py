@@ -198,6 +198,7 @@ def run_projection(
     plt.savefig(out_fig / "fig_07_welder_projection.png", dpi=150, bbox_inches="tight")
     plt.close()
 
+    # Secondary exploratory analysis (not primary study claim)
     exposure_vars = [
         ("WeldYrs", "Total years in welding"),
         ("HrsPerDay", "Hours per day"),

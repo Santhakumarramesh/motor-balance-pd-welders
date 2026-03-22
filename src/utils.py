@@ -168,6 +168,70 @@ def w_stage(yrs: float) -> float:
     return 5.0
 
 
+def find_id_column(raw: pd.DataFrame) -> str | None:
+    for c in raw.columns:
+        cl = str(c).lower()
+        if any(x in cl for x in ("participant", "subject", "name", "id")):
+            return c
+    return None
+
+
+def normalize_balance_columns(raw: pd.DataFrame) -> pd.DataFrame:
+    """Map heterogeneous Excel columns to BBS, Mini, FES and an ID column."""
+    bbs_c = next((c for c in raw.columns if str(c).strip().lower() == "bbs"), None)
+    if bbs_c is None:
+        bbs_c = next((c for c in raw.columns if "bbs" in str(c).lower()), None)
+    mini_c = _norm_mini_col(raw.columns)
+    fes_c = next((c for c in raw.columns if str(c).strip().lower() == "fes"), None)
+    if fes_c is None:
+        fes_c = next(
+            (
+                c
+                for c in raw.columns
+                if "fes" in str(c).lower() and "mini" not in str(c).lower()
+            ),
+            None,
+        )
+    id_c = find_id_column(raw)
+    missing = []
+    if bbs_c is None:
+        missing.append("BBS")
+    if mini_c is None:
+        missing.append("Mini-BEST (column containing 'mini' and 'best')")
+    if fes_c is None:
+        missing.append("FES")
+    if missing:
+        raise ValueError(
+            "Could not resolve columns: "
+            + ", ".join(missing)
+            + f". Found columns: {list(raw.columns)}"
+        )
+    out = pd.DataFrame(
+        {
+            "ID": raw[id_c].astype(str) if id_c else [f"row{i}" for i in range(len(raw))],
+            "BBS": pd.to_numeric(raw[bbs_c], errors="coerce"),
+            "Mini": pd.to_numeric(raw[mini_c], errors="coerce"),
+            "FES": pd.to_numeric(raw[fes_c], errors="coerce"),
+        }
+    )
+    return out
+
+
+def read_excel_sheet(path: Path | str, sheet: str | int | None) -> pd.DataFrame:
+    """Parse one sheet; if sheet is None, prefer WD then PD then first sheet."""
+    path = Path(path)
+    xl = pd.ExcelFile(path)
+    if sheet is not None:
+        return xl.parse(sheet)
+    for name in ("WD", "wd", "Welders"):
+        if name in xl.sheet_names:
+            return xl.parse(name)
+    for name in ("PD",):
+        if name in xl.sheet_names:
+            return xl.parse(name)
+    return xl.parse(xl.sheet_names[0])
+
+
 def validate_ranges(df: pd.DataFrame, label: str = "") -> list[str]:
     warnings = []
     for _, row in df.iterrows():
