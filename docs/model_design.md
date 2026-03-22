@@ -79,6 +79,10 @@ Output: `outputs/metrics/group_discrimination.json`, figure `outputs/figures/fig
 
 **Caveat:** Strong age and cohort confounding — use only to show group separation on balance scores, not causal inference.
 
+## External validation (not part of the pilot results)
+
+Independent PD cohorts with true H&Y are required to test generalization of **frozen** pipelines. See **`docs/external_validation.md`** and `python -m src.validate_external_pd`.
+
 ## Reproducibility
 
 - Random seed: **42** (`src/utils.py`)

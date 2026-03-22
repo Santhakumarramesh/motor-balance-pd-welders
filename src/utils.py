@@ -45,9 +45,9 @@ def _norm_mini_col(columns: pd.Index) -> str | None:
     return None
 
 
-def load_pd_dataframe(xl_path: Path | str) -> pd.DataFrame:
+def load_pd_dataframe(xl_path: Path | str, sheet: str | int = "PD") -> pd.DataFrame:
     path = Path(xl_path)
-    raw = pd.ExcelFile(path).parse("PD")
+    raw = pd.ExcelFile(path).parse(sheet)
     mini_col = _norm_mini_col(raw.columns) or "MINI-BEST"
     records = []
     for _, r in raw.iterrows():

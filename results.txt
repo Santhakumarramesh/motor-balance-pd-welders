@@ -58,9 +58,16 @@ STRENGTHS
 Shared PD–welder features; LOOCV for small PD samples; probabilistic outputs; scripted
 reproducibility; generic inference via python -m src.predict_excel
 
+EXTERNAL VALIDATION (REQUIRED FOR STRONGER CLAIMS; NOT IN THIS PILOT)
+The PD reference model should be evaluated on an independent PD cohort with true H&Y and
+the same balance measures, using frozen pipelines (no retraining on the external set for
+the primary estimate). Welders cannot validate H&Y accuracy (no true H&Y labels).
+When external data are unavailable, state explicitly that findings are hypothesis-generating.
+See docs/external_validation.md. When data exist: python -m src.validate_external_pd <file.xlsx>
+
 LIMITATIONS
-n=14 PD; H&Y imbalance; no external validation; age gap between cohorts; three scales only;
-welder outputs are non-diagnostic and exploratory.
+n=14 PD; H&Y imbalance; no external PD cohort in this study; age gap between cohorts;
+three scales only; welder outputs are non-diagnostic and exploratory.
 
 RECOMMENDED REPORTING
 This study presents a PD-referenced machine learning framework in which models trained on

@@ -45,9 +45,19 @@ python run_all.py
 | `python -m src.predict_excel INPUT.xlsx` | Inference on **any** Excel with BBS / Mini-BEST / FES columns (auto-detected); writes `outputs/predictions/inference_predictions.xlsx` by default |
 | `python -m src.benchmark_group_discrimination` | Supporting PD vs welder 5-fold CV benchmark |
 | `python -m src.generate_paper_figures --ensure-run` | Build paper figures + `.md` captions; if needed, runs full pipeline first |
+| `python -m src.validate_external_pd FILE.xlsx` | **External PD cohort:** frozen pipelines, metrics JSON (requires true H&Y) |
 
 Design reference: **`docs/model_design.md`**.  
+External validation protocol and paper wording: **`docs/external_validation.md`**.  
 Narrative summary: **`results.txt`** (align numbers with `phase1_metrics.json`).
+
+**When you have an independent PD Excel** (same column layout as the PD sheet, true H&Y):
+
+```bash
+python -m src.validate_external_pd /path/to/external_pd.xlsx --sheet PD
+```
+
+This applies **frozen** `models/hy_*_pipeline.joblib` and writes `outputs/metrics/external_validation.json`. It does **not** replace prospective external data collection.
 
 ---
 
@@ -72,6 +82,7 @@ motor-balance-pd-welders/
 ├── notebooks/
 ├── docs/
 │   ├── model_design.md
+│   ├── external_validation.md
 │   └── paper_figure_plan.md
 ├── results.txt
 ├── run_all.py
@@ -116,6 +127,7 @@ python -m src.benchmark_group_discrimination --help
 python -m src.project_welders --help
 python -m src.predict_excel --help
 python -m src.generate_paper_figures --help
+python -m src.validate_external_pd --help
 ```
 
 ---
