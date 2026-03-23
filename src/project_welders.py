@@ -146,7 +146,6 @@ def run_projection(
     if "WeldYrs" in wd_clean.columns:
         wd_clean["W_Stage"] = wd_clean["WeldYrs"].apply(w_stage)
 
-    # Welder projection: severity + stacked probs; optional third panel (exposure)
     if exposure:
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
         ax0, ax1, ax2 = axes[0], axes[1], axes[2]
