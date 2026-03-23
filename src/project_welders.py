@@ -128,6 +128,20 @@ def run_projection(
     wd_clean["PD_Severity_Score"] = sum(
         float(s) * mc_proba[:, i] for i, s in enumerate(mc_classes)
     )
+    trained_max = float(np.max(mc_classes))
+    wd_clean["At_Trained_Upper_Boundary"] = (
+        wd_clean["Pred_Stage"].astype(float) == trained_max
+    ).astype(int)
+    wd_clean["Trained_HY_max_stage"] = int(trained_max)
+    _interp_upper = (
+        "Upper-bound (Stage IV-like ceiling; beyond-range possible)"
+    )
+    _interp_within = "Within trained PD severity range"
+    wd_clean["Interpretation"] = np.where(
+        wd_clean["At_Trained_Upper_Boundary"] == 1,
+        _interp_upper,
+        _interp_within,
+    )
 
     if "WeldYrs" in wd_clean.columns:
         wd_clean["W_Stage"] = wd_clean["WeldYrs"].apply(w_stage)

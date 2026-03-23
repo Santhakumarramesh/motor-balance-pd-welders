@@ -51,6 +51,7 @@ Representative replication snapshot (best Combined model, default data file):
 
 WELDER OUTPUTS (PHASE 2)
 Per row: Pred_Stage, P_Stage1…P_Stage4 (as trained), PD_Severity_Score = Σ k·P(stage k);
+Trained_HY_max_stage (default data: 4; no Stage V in training); At_Trained_Upper_Boundary (1 if argmax is that max); Interpretation (human-readable);
 optional binary Early/Late-like labels if binary pipeline is applied.
 
 ARTIFACTS

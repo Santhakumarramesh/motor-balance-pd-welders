@@ -29,14 +29,18 @@ Training expects a **PD** sheet with **true H&Y** labels; inference on new sheet
 | `Pred_Stage` | Argmax stage from multiclass probabilities |
 | `P_Stage1` … `P_Stage4` | Predicted probability per trained stage |
 | `PD_Severity_Score` | Σ *k* · P(stage *k*) — continuous PD-like severity in 1–4 space |
+| `Trained_HY_max_stage` | Highest H&Y stage present in PD training (here **4**); **Stage V is not represented** — the model cannot learn or output a true Stage V class |
+| `At_Trained_Upper_Boundary` | **1** if `Pred_Stage` equals that maximum (PD-like severity at the top of the trained span, not a Stage V diagnosis) |
+| `Interpretation` | Short text: upper-bound vs within-range (non-diagnostic) |
 | `Pred_Binary` / labels | Optional Early-like vs Late-like from binary pipeline |
 
 ## Limitations
 
-- **Small PD sample** (*n* = 14 in the pilot Excel); wide uncertainty; LOOCV is optimistic for generalization.
+- **Small PD sample** (*n* = 15 PD rows in the default Excel); wide uncertainty; LOOCV is optimistic for generalization.
 - **Class imbalance** in H&Y; multiclass exact accuracy is modest; **within-one-stage** accuracy is reported separately.
 - **Confounding** (e.g. age) between PD and welder cohorts; welder outputs are **not** externally validated against true H&Y.
 - **Three scales only** — not a full motor or clinical assessment.
+- **H&Y I–IV only in training** — cases at the upper boundary are flagged (`At_Trained_Upper_Boundary`, `Interpretation`) but **not** extrapolated to Stage V.
 
 ## External validation status
 

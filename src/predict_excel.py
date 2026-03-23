@@ -9,6 +9,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+_INTERP_UPPER = "Upper-bound (Stage IV-like ceiling; beyond-range possible)"
+_INTERP_WITHIN = "Within trained PD severity range"
+
 _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
@@ -39,6 +42,16 @@ def run_predict(
     out["Pred_Stage"] = mc_pipe.predict(X)
     out["PD_Severity_Score"] = sum(
         float(s) * mc_proba[:, i] for i, s in enumerate(mc_classes)
+    )
+    trained_max = float(np.max(mc_classes))
+    out["At_Trained_Upper_Boundary"] = (
+        out["Pred_Stage"].astype(float) == trained_max
+    ).astype(int)
+    out["Trained_HY_max_stage"] = int(trained_max)
+    out["Interpretation"] = np.where(
+        out["At_Trained_Upper_Boundary"] == 1,
+        _INTERP_UPPER,
+        _INTERP_WITHIN,
     )
 
     if binary:

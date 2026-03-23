@@ -52,7 +52,11 @@ Use `python run_all.py --exposure` if you want Phase 2 exposure correlations and
 **Data:** `data/PD_WELDERS RAW Long Data.xlsx` (default path in `src/utils.py`)  
 **Seed:** `42` (`src/utils.py`)
 
-**Welder classification (Phase 2):** Row-level outputs are in **`outputs/predictions/welder_predictions.xlsx`**. Main columns: `ID`, **`Pred_Stage`** (argmax PD-like stage, not clinical H&Y), **`P_Stage1`…`P_Stage4`**, **`PD_Severity_Score`**. Figure: **`outputs/figures/fig_07_welder_projection.png`**. Compact table (Welder ID, PD-like stage, severity, **Confidence** = max of stage probabilities): `python -m src.summarize_welder_predictions` → `welder_predictions_summary.csv` (uses `row_1`, `row_2`, … if `ID` is empty in the sheet).
+**Welder classification (Phase 2):** Row-level outputs are in **`outputs/predictions/welder_predictions.xlsx`**. Main columns: `ID`, **`Pred_Stage`** (argmax PD-like stage, not clinical H&Y), **`P_Stage1`…`P_Stage4`**, **`PD_Severity_Score`**, **`Trained_HY_max_stage`**, **`At_Trained_Upper_Boundary`** (1 when argmax is the maximum trained stage), **`Interpretation`**. Training is **H&Y I–IV only** (no Stage V).
+
+> Cases with **`At_Trained_Upper_Boundary` = 1** lie at the maximum learned PD severity boundary (Stage IV-like) and may reflect beyond-range patterns; **Stage V is not modeled.**
+
+Figure: **`outputs/figures/fig_07_welder_projection.png`**. Compact table: `python -m src.summarize_welder_predictions` → `welder_predictions_summary.csv` (uses `row_1`, `row_2`, … if `ID` is empty in the sheet).
 
 ---
 
