@@ -1,0 +1,4 @@
+{
+  "associations": [],
+  "note": "Off by default; use --exposure to compute Spearman correlations vs exposure variables."
+}

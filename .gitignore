@@ -16,12 +16,9 @@ build/
 .venv/
 venv/
 
-# Generated analysis outputs (regenerate via run_all.py)
-outputs/figures/**/*.png
-# Stale captions if any remain under paper/ (canonical: docs/captions/)
+# Generated analysis outputs: tracked in git for reproducibility on GitHub (re-run run_all.py to refresh).
+# Captions live under docs/captions/; ignore stray .md under paper/ only.
 outputs/figures/paper/*.md
-outputs/metrics/
-outputs/predictions/
 
 # Trained artifacts (regenerate with python -m src.train_hy_model)
 models/*.joblib

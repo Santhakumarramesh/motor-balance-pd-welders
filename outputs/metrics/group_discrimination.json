@@ -1,0 +1,77 @@
+{
+  "task": "pd_vs_welder_group",
+  "n_total": 31,
+  "n_pd": 15,
+  "n_welder": 16,
+  "validation": "5-fold_stratified_cv",
+  "feature_sets": {
+    "BBS": {
+      "Logistic Regression": {
+        "accuracy": 0.7741935483870968,
+        "balanced_accuracy": 0.7729166666666667,
+        "f1_macro": 0.7732497387669801
+      },
+      "Random Forest": {
+        "accuracy": 0.7741935483870968,
+        "balanced_accuracy": 0.7729166666666667,
+        "f1_macro": 0.7732497387669801
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.7419354838709677,
+        "balanced_accuracy": 0.7416666666666667,
+        "f1_macro": 0.7416666666666667
+      }
+    },
+    "Mini-BEST": {
+      "Logistic Regression": {
+        "accuracy": 0.8064516129032258,
+        "balanced_accuracy": 0.80625,
+        "f1_macro": 0.80625
+      },
+      "Random Forest": {
+        "accuracy": 0.7741935483870968,
+        "balanced_accuracy": 0.7729166666666667,
+        "f1_macro": 0.7732497387669801
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.7741935483870968,
+        "balanced_accuracy": 0.7729166666666667,
+        "f1_macro": 0.7732497387669801
+      }
+    },
+    "FES": {
+      "Logistic Regression": {
+        "accuracy": 0.7096774193548387,
+        "balanced_accuracy": 0.7104166666666667,
+        "f1_macro": 0.7096774193548387
+      },
+      "Random Forest": {
+        "accuracy": 0.7741935483870968,
+        "balanced_accuracy": 0.7708333333333333,
+        "f1_macro": 0.7703703703703704
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.7741935483870968,
+        "balanced_accuracy": 0.7708333333333333,
+        "f1_macro": 0.7703703703703704
+      }
+    },
+    "Combined": {
+      "Logistic Regression": {
+        "accuracy": 0.7096774193548387,
+        "balanced_accuracy": 0.7083333333333333,
+        "f1_macro": 0.7084639498432602
+      },
+      "Random Forest": {
+        "accuracy": 0.8064516129032258,
+        "balanced_accuracy": 0.8041666666666667,
+        "f1_macro": 0.8046218487394958
+      },
+      "Gradient Boosting": {
+        "accuracy": 0.7419354838709677,
+        "balanced_accuracy": 0.7416666666666667,
+        "f1_macro": 0.7416666666666667
+      }
+    }
+  }
+}
