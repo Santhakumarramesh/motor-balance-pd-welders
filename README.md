@@ -158,6 +158,17 @@ motor-balance-pd-welders/
 
 ## Development
 
+**Syncing outputs to GitHub:** `outputs/` (figures, metrics JSON, `welder_predictions.xlsx`) is tracked so the remote matches your latest pipeline run. After each `python run_all.py` — or whenever you want GitHub updated — run:
+
+```bash
+git add outputs/
+git status   # review changes
+git commit -m "Update pipeline outputs"
+git push origin main
+```
+
+Skip the commit if there is nothing to update. **`models/*.joblib`** stays gitignored (regenerate with training).
+
 **CI:** A workflow file is provided at `.github/workflows/ci.yml` (runs `python -m src.smoke_test` on push/PR). It must be pushed with a GitHub token that has the **`workflow` scope** (or add the file via the GitHub web UI). Requires the default Excel under `data/` (see `DEFAULT_DATA_FILENAME` in `src/utils.py`) for the job to pass.
 
 ```bash
